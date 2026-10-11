@@ -77,7 +77,7 @@ export default function Claim() {
             <label className="label" htmlFor="username">Username</label>
             <div className="flex items-stretch">
               <span className="flex items-center rounded-l-xl border border-r-0 border-ink/15 bg-ink/5 px-3 font-mono text-sm text-ink-soft">
-                buymepap.app/
+                folks.gg/
               </span>
               <input
                 id="username"

@@ -37,7 +37,7 @@ router.post('/payments/:reference/reconcile', async (req, res) => {
     });
     res.json({ outcome: result.outcome });
   } catch (err) {
-    console.error('[buymepap] admin reconcile failed:', err instanceof ProviderError ? err.message : err?.name);
+    console.error('[folks] admin reconcile failed:', err instanceof ProviderError ? err.message : err?.name);
     res.status(502).json({ error: 'Provider is unreachable.' });
   }
 });

@@ -1,9 +1,9 @@
 {
-  "name": "buymepap",
+  "name": "folks",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Get your link. Get paid. BuyMePap is a creator-payment platform for Nigeria — fans buy creators a cup of pap via Flutterwave: cards, bank transfer, USSD.",
+  "description": "Get your link. Get paid. Folks is a global creator-payment platform — fans support creators worldwide.",
   "engines": {
     "node": ">=24"
   },

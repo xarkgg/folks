@@ -23,7 +23,7 @@ export function uniquePhone() {
  * pins it first — rate-limit tests set it to 1 *before* calling startApp.
  */
 export async function startApp({ env = {} } = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'buymepap-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'folks-test-'));
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
   process.env.PAP_DB_PATH = path.join(dir, 'test.db');
   if (process.env.RATE_LIMIT_SCALE === undefined) process.env.RATE_LIMIT_SCALE = '100';
@@ -60,7 +60,7 @@ function makeClient(base) {
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (token) headers.Authorization = `Bearer ${token}`;
     if (Object.keys(jar).length > 0) headers.Cookie = Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ');
-    if (jar.buymepap_csrf) headers['X-CSRF-Token'] = jar.buymepap_csrf;
+    if (jar.folks_csrf) headers['X-CSRF-Token'] = jar.folks_csrf;
     const res = await fetch(`${base}${pathname}`, {
       method,
       headers,

@@ -178,7 +178,7 @@ export class FlutterwaveProvider {
       currency,
       reference,
       narration,
-      meta: { source: 'buymepap' },
+      meta: { source: 'folks' },
     });
     const data = payload?.data ?? {};
     const raw = String(data.status ?? '').toUpperCase();

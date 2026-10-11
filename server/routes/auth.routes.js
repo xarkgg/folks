@@ -41,7 +41,7 @@ router.post('/claim', limiter('claim'), async (req, res) => {
     const { db } = await import('../db.js');
     db.prepare('DELETE FROM otp_challenges WHERE creator_id = ?').run(result.creator.id);
     db.prepare('DELETE FROM creators WHERE id = ?').run(result.creator.id);
-    console.error('[buymepap] otp delivery failed:', err.message);
+    console.error('[folks] otp delivery failed:', err.message);
     return res.status(502).json({ error: 'Could not send the verification code. Try again in a moment.' });
   }
 

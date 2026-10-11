@@ -100,7 +100,7 @@ router.post('/me/kyc/session', creatorRequired, async (req, res) => {
     res.json({ ...session, kycStatus: creator.kyc_status });
   } catch (err) {
     if (err instanceof ProviderError) {
-      console.error('[buymepap] kyc session failed:', err.message);
+      console.error('[folks] kyc session failed:', err.message);
       return res.status(502).json({ error: 'Verification service is unavailable. Try again shortly.' });
     }
     throw err;
@@ -118,7 +118,7 @@ router.post('/me/kyc/refresh', creatorRequired, async (req, res) => {
     }
   } catch (err) {
     if (err instanceof ProviderError) {
-      console.error('[buymepap] kyc refresh failed:', err.message);
+      console.error('[folks] kyc refresh failed:', err.message);
       return res.status(502).json({ error: 'Verification service is unavailable. Try again shortly.' });
     }
     throw err;
@@ -176,7 +176,7 @@ router.post('/me/withdrawals', creatorRequired, async (req, res) => {
 
   const sent = await sendWithdrawal(request.withdrawal, provider);
   if (sent.outcome === 'provider_unreachable') {
-    console.error('[buymepap] payout send failed:', sent.error?.message);
+    console.error('[folks] payout send failed:', sent.error?.message);
     return res.status(202).json({
       withdrawal: selfWithdrawal(sent.withdrawal),
       message: 'The payout is queued with the bank. We will update it automatically.',

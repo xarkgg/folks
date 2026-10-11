@@ -4,7 +4,7 @@ import { useAuth } from '../lib/auth.jsx';
 const steps = [
   {
     title: 'Claim your link',
-    body: 'Your name and your phone — that is the whole signup. Your page goes live at buymepap.app/yourname in under a minute.',
+    body: 'Your name and your phone — that is the whole signup. Your page goes live at folks.gg/yourname in under a minute.',
   },
   {
     title: 'Share it anywhere',
@@ -29,7 +29,7 @@ function Preview() {
       <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-pap/20 blur-3xl" />
       <div className="card pop-in w-full" style={{ animationDelay: '180ms' }}>
         <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Your link</p>
-        <p className="mt-1 truncate font-mono text-lg font-bold">buymepap.app/zainab</p>
+        <p className="mt-1 truncate font-mono text-lg font-bold">folks.gg/zainab</p>
 
         <div className="mt-4 flex items-center justify-between rounded-xl bg-pap/15 px-4 py-3">
           <span className="text-sm font-semibold">Balance</span>

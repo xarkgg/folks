@@ -76,7 +76,7 @@ router.post('/flutterwave', raw, (req, res) => {
     res.json({ received: true });
   } catch (err) {
     markEventProcessed(log.eventId, err?.message ?? 'processing error');
-    console.error('[buymepap] webhook processing failed:', err instanceof ProviderError ? err.message : err?.name);
+    console.error('[folks] webhook processing failed:', err instanceof ProviderError ? err.message : err?.name);
     res.status(500).json({ error: 'Webhook processing failed.' });
   }
 });
@@ -112,7 +112,7 @@ router.post('/sumsub', raw, (req, res) => {
     res.json({ received: true });
   } catch (err) {
     markEventProcessed(log.eventId, err?.message ?? 'processing error');
-    console.error('[buymepap] kyc webhook failed:', err?.name);
+    console.error('[folks] kyc webhook failed:', err?.name);
     res.status(500).json({ error: 'Webhook processing failed.' });
   }
 });

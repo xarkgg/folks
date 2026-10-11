@@ -337,7 +337,7 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-      <p className="mt-1 font-mono text-sm text-ink-soft">buymepap.app/{creator.username}</p>
+      <p className="mt-1 font-mono text-sm text-ink-soft">folks.gg/{creator.username}</p>
       {error && <div className="mt-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">{error}</div>}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-4">

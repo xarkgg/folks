@@ -17,7 +17,7 @@ test('claim validates username, display name and phone', async () => {
     { username: 'A!', displayName: 'Ada', phone: '+2348012345678' },
     { username: 'ab', displayName: 'Ada', phone: '+2348012345678' },
     { username: 'admin', displayName: 'Ada', phone: '+2348012345678' },
-    { username: 'buymepap', displayName: 'Ada', phone: '+2348012345678' },
+    { username: 'folks', displayName: 'Ada', phone: '+2348012345678' },
     { username: uniqueName(), displayName: '  ', phone: '+2348012345678' },
     { username: uniqueName(), displayName: 'Ada', phone: 'not-a-phone' },
     { username: uniqueName(), displayName: 'Ada', phone: '12345' },

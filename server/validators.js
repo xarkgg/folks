@@ -9,7 +9,7 @@ const RESERVED_USERNAMES = new Set([
   'login', 'logout', 'signup', 'settings', 'dashboard', 'pages', 'supports',
   'webhooks', 'assets', 'static', 'src', 'vendor', 'favicon.ico',
   'mock-checkout', 'kyc', 'kyc-return', 'auth', 'verify', 'withdraw',
-  'buymepap', 'buymeacoffee', 'support', 'help', 'security', 'official',
+  'folks', 'folks.gg', 'support', 'help', 'security', 'official',
 ]);
 
 export function validateUsername(username) {

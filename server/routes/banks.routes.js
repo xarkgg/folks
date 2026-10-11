@@ -28,7 +28,7 @@ router.get('/', async (_req, res) => {
   try {
     res.json({ banks: await provider.listBanks() });
   } catch (err) {
-    console.error('[buymepap] bank list failed:', err instanceof ProviderError ? err.message : err?.name);
+    console.error('[folks] bank list failed:', err instanceof ProviderError ? err.message : err?.name);
     res.status(502).json({ error: 'Bank list is unavailable right now.' });
   }
 });

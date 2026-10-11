@@ -100,7 +100,7 @@ router.post('/:username/supports', (req, res, next) => req.app.get('limiters').p
       amountKobo,
       currency: creator.currency,
       customerName: name.trim(),
-      customerEmail: email ? String(email).trim().toLowerCase() : `supporter+${reference}@buymepap.app`,
+      customerEmail: email ? String(email).trim().toLowerCase() : `supporter+${reference}@folks.gg`,
       redirectUrl: `${config.appUrl}/${creator.username}?reference=${encodeURIComponent(reference)}`,
       metadata: { creator: creator.username, cups, paymentId },
     });
@@ -108,7 +108,7 @@ router.post('/:username/supports', (req, res, next) => req.app.get('limiters').p
     res.status(201).json({ checkoutUrl: init.checkoutUrl, reference, amountKobo, currency: creator.currency });
   } catch (err) {
     markPaymentFailed(reference, null);
-    console.error('[buymepap] payment init failed:', err instanceof ProviderError ? err.message : err?.name);
+    console.error('[folks] payment init failed:', err instanceof ProviderError ? err.message : err?.name);
     res.status(502).json({ error: 'Payment provider is unavailable. Try again.' });
   }
 });

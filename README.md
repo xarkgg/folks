@@ -1,12 +1,8 @@
-# BuyMePap 🥣
+# Folks 🥣
 
 **Get your link. Get paid.**
 
-BuyMePap is a creator-payment platform for Nigeria. Claim a public link in
-seconds — no email, no password — share it, and when you're ready to receive
-money, verify your phone and identity, add your bank account, and switch
-payments on. Fans buy you a cup of pap with **card, bank transfer or USSD**
-via Flutterwave, and the naira lands in your bank.
+Folks is a global creator-payment platform. Claim a public link in seconds — no email, no password — share it, and when you're ready to receive support, verify your phone and identity, add your payout account, and switch payments on. Fans support you with card, bank transfer or USSD, and the funds land in your bank.
 
 ```
 Claim your link → verify phone → your page is live
@@ -159,7 +155,7 @@ into its UI except environment variables.
 `railway.json` is committed: Nixpacks → `npm run build` → `npm start`, health
 check `/healthz`.
 
-1. Deploy `main`; add a **Volume** at `/data` and set `PAP_DB_PATH=/data/buymepap.db`.
+1. Deploy `main`; add a **Volume** at `/data` and set `PAP_DB_PATH=/data/folks.db`.
 2. Set every variable from the "Going live" list. `PORT` is injected. Set
    `APP_URL` to the **frontend** origin (`https://<project>.vercel.app`), not the
    Railway host: it is what the CSRF origin check and the Sumsub `applicationUrl`
@@ -291,7 +287,7 @@ opens for Sumsub only in live KYC mode.
   mock mode fabricates the decision, so that click is the one part of the
   lifecycle to walk manually in a sandbox account first.
 - Social previews are site-level: `og:image` is baked in at build time, so a
-  shared creator link shows the BuyMePap card, not that creator's. Per-page
+  shared creator link shows the Folks card, not that creator's. Per-page
   cards need a prerender or SSR pass.
 - No password reset needed anymore — but phone-number change is not yet
   supported (deliberately; it is a KYC-sensitive flow).

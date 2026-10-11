@@ -73,7 +73,7 @@ export function requestWithdrawal({ creator, amountKobo }) {
         creator.bank_account_number,
         creator.bank_account_last4,
         creator.payout_account_name,
-        `BuyMePap withdrawal for @${creator.username}`,
+        `Folks withdrawal for @${creator.username}`,
       );
     const withdrawalId = Number(result.lastInsertRowid);
 

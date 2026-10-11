@@ -1,5 +1,5 @@
 /**
- * Every amount in BuyMePap is an integer in the smallest unit of the currency
+ * Every amount in Folks is an integer in the smallest unit of the currency
  * (kobo for NGN). Nothing here may use floating-point arithmetic, and nothing
  * that has already been recorded is ever recomputed from live configuration —
  * the ledger stores the exact figure that moved.

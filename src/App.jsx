@@ -21,13 +21,13 @@ function Header() {
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-2">
         <Link
           to="/"
-          aria-label="BuyMePap home"
+          aria-label="Folks home"
           className="flex shrink-0 items-center gap-2.5 rounded-xl text-lg font-extrabold tracking-tight"
         >
           <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-xl bg-pap/25 text-lg ring-1 ring-pap/40">
             🥣
           </span>
-          <span className="hidden sm:inline">BuyMePap</span>
+          <span className="hidden sm:inline">Folks</span>
         </Link>
 
         <nav aria-label="Main" className="flex min-w-0 items-center gap-2">
@@ -90,7 +90,7 @@ function Layout() {
         {loading ? <PageSkeleton /> : <Outlet />}
       </main>
       <footer className="border-t border-ink/[0.07] py-7 text-center text-sm text-ink-soft">
-        <p>BuyMePap — Get your link. Get paid.</p>
+        <p>Folks — Get your link. Get paid.</p>
         <p className="mt-1 text-xs">Payments by Flutterwave · Tips land in naira, in your bank.</p>
       </footer>
     </div>

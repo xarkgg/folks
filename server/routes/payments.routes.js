@@ -31,13 +31,13 @@ router.get('/:reference', async (req, res) => {
           via: 'server_verify',
         });
         if (result.outcome === 'amount_mismatch') {
-          console.error('[buymepap] amount mismatch on', reference);
+          console.error('[folks] amount mismatch on', reference);
         }
         payment = getPaymentByReference(reference);
       }
     } catch (err) {
       // Verification is best-effort here; webhooks and reconciliation also settle.
-      console.error('[buymepap] verify failed:', err instanceof ProviderError ? err.message : err?.name);
+      console.error('[folks] verify failed:', err instanceof ProviderError ? err.message : err?.name);
     }
   }
 

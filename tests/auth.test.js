@@ -17,7 +17,7 @@ test('session cookie is httpOnly, SameSite and Secure-aware', async () => {
   const phone = uniquePhone();
   const claim = await api('/api/auth/claim', { method: 'POST', body: { username, displayName: 'Ada', phone } });
   const cookies = claim.headers.getSetCookie();
-  const sessionCookie = cookies.find((c) => c.startsWith('buymepap_session='));
+  const sessionCookie = cookies.find((c) => c.startsWith('folks_session='));
   assert.ok(sessionCookie.includes('HttpOnly'), 'session cookie must be HttpOnly');
   assert.ok(/SameSite=Lax/i.test(sessionCookie), 'session cookie must be SameSite=Lax');
   assert.ok(!sessionCookie.includes('Secure'), 'no Secure flag in plain-http tests');
@@ -26,7 +26,7 @@ test('session cookie is httpOnly, SameSite and Secure-aware', async () => {
   const code = sms.data.body.match(/\d{4,8}/)[0];
   const verify = await api('/api/auth/otp/verify', { method: 'POST', body: { code } });
   const sessionCookies = verify.headers.getSetCookie();
-  assert.ok(sessionCookies.some((c) => c.startsWith('buymepap_session=')));
+  assert.ok(sessionCookies.some((c) => c.startsWith('folks_session=')));
 });
 
 test('CSRF: unsafe requests without the token header are rejected', async () => {
@@ -37,7 +37,7 @@ test('CSRF: unsafe requests without the token header are rejected', async () => 
 
   // Strip the CSRF header/cookie pair but keep the session cookie.
   const cookieOnly = Object.entries(jar)
-    .filter(([k]) => k !== 'buymepap_csrf')
+    .filter(([k]) => k !== 'folks_csrf')
     .map(([k, v]) => `${k}=${v}`)
     .join('; ');
   const res = await fetch(`${app.base}/api/auth/otp/verify`, {
@@ -83,7 +83,7 @@ test('Bearer tokens work for non-browser clients', async () => {
   const verify = await api('/api/auth/otp/verify', { method: 'POST', body: { code } });
   assert.equal(verify.status, 200);
   const jar = api.jar();
-  const sessionCookie = Object.entries(jar).find(([k]) => k === 'buymepap_session');
+  const sessionCookie = Object.entries(jar).find(([k]) => k === 'folks_session');
   assert.ok(sessionCookie);
   await api.clearJar();
 

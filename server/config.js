@@ -44,19 +44,19 @@ const config = {
   isProd,
   port,
   appUrl: str('APP_URL', `http://localhost:${port}`),
-  dbPath: str('PAP_DB_PATH', path.join(root, 'data', 'buymepap.db')),
+  dbPath: str('PAP_DB_PATH', path.join(root, 'data', 'folks.db')),
   trustProxyHops: int('TRUST_PROXY_HOPS', 1),
   bodyLimit: str('BODY_LIMIT', '32kb'),
   rateLimitScale: int('RATE_LIMIT_SCALE', 1),
 
   // Session signing. In production this must be an explicit secret; see validateConfig.
   jwtSecret: str('JWT_SECRET'),
-  sessionCookie: str('SESSION_COOKIE_NAME', 'buymepap_session'),
+  sessionCookie: str('SESSION_COOKIE_NAME', 'folks_session'),
   sessionTtlSeconds: int('SESSION_TTL_SECONDS', 30 * 24 * 60 * 60),
   pendingTtlSeconds: int('PENDING_TTL_SECONDS', 15 * 60),
   cookieSecure: bool('COOKIE_SECURE', isProd),
   cookieSameSite: str('COOKIE_SAMESITE', 'lax'),
-  csrfCookie: str('CSRF_COOKIE_NAME', 'buymepap_csrf'),
+  csrfCookie: str('CSRF_COOKIE_NAME', 'folks_csrf'),
   allowedOrigins: str('ALLOWED_ORIGINS', '')
     .split(',')
     .map((o) => o.trim().toLowerCase())
@@ -106,7 +106,7 @@ const config = {
   sms: {
     url: str('SMS_HTTP_URL'),
     token: str('SMS_HTTP_TOKEN'),
-    senderId: str('SMS_SENDER_ID', 'BuyMePap'),
+    senderId: str('SMS_SENDER_ID', 'Folks'),
     timeoutMs: int('SMS_TIMEOUT_MS', 15000),
   },
 
@@ -184,7 +184,7 @@ export function validateConfig(cfg = config) {
       `Refusing to start: configuration is not production-safe (NODE_ENV=production)\n${list}\nSee .env.example for what each variable means.`,
     );
   }
-  for (const p of problems) console.warn(`[buymepap] config: ${p}`);
+  for (const p of problems) console.warn(`[folks] config: ${p}`);
 }
 
 validateConfig(config);

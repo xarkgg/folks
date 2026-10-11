@@ -1,7 +1,7 @@
 const BASE = '/api';
 
 function csrfToken() {
-  const match = document.cookie.match(/(?:^|;\s*)buymepap_csrf=([^;]+)/);
+  const match = document.cookie.match(/(?:^|;\s*)folks_csrf=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : '';
 }
 

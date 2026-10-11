@@ -8,7 +8,7 @@ import { db } from '../db.js';
  * outside non-production, and this module still guards on its own).
  */
 async function sendOtpSms(phone, code) {
-  const message = `BuyMePap: your verification code is ${code}. It expires in ${Math.round(config.otpTtlSeconds / 60)} minutes.`;
+  const message = `Folks: your verification code is ${code}. It expires in ${Math.round(config.otpTtlSeconds / 60)} minutes.`;
   if (config.smsProvider === 'mock') {
     if (config.isProd) throw new Error('Mock SMS delivery is not allowed in production.');
     db.prepare('INSERT INTO sms_outbox (phone_e164, body) VALUES (?, ?)').run(phone, message);
