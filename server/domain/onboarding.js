@@ -135,8 +135,11 @@ export function setKycState(creatorId, { status, ref = undefined, reason = null 
 /** Saves the payout account after the provider confirms the account name. */
 export async function setPayoutAccount(creator, { bankCode, accountNumber }, provider = createPaymentProvider()) {
   if (!creator.phone_verified_at) return { error: 'phone_not_verified' };
-  if (!/^[A-Za-z0-9\-]{2,12}$/.test(bankCode ?? '')) return { error: 'invalid_bank_code' };
-  if (!/^\d{6,17}$/.test(accountNumber ?? '')) return { error: 'invalid_account_number' };
+
+  // Stellar G-addresses start with G and are 56-char base32; bank codes are 2-12 alphanum.
+  const isStellar = /^G[A-Z2-7]{55}$/.test(bankCode ?? '');
+  const isBank = /^[A-Za-z0-9\-]{2,12}$/.test(bankCode ?? '');
+  if (!isStellar && !isBank) return { error: 'invalid_bank_code' };
 
   let resolved;
   try {

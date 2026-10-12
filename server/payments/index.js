@@ -1,6 +1,7 @@
 import config from '../config.js';
 import { MockPaymentProvider } from './mock.js';
 import { FlutterwaveProvider } from './flutterwave.js';
+import { createStellarProvider } from './stellar.js';
 
 /**
  * The only surface the financial domain knows about payment providers:
@@ -28,11 +29,12 @@ import { FlutterwaveProvider } from './flutterwave.js';
  * Adapters must never log or embed their credentials, and route handlers must
  * never forward provider error bodies to clients.
  */
-
 export function createPaymentProvider(cfg = config, { fetchImpl } = {}) {
   if (cfg.paymentsProvider === 'flutterwave') {
     return new FlutterwaveProvider(cfg.flutterwave, { fetchImpl });
   }
+  const stellar = createStellarProvider(cfg, { fetchImpl });
+  if (stellar) return stellar;
   return new MockPaymentProvider();
 }
 

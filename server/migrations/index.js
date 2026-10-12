@@ -218,6 +218,14 @@ export const MIGRATIONS = [
     version: 2,
     name: 'financial-domain-v2',
     rebuildsTables: true,
-    up: (db) => db.exec(V2_FINANCIAL_DOMAIN),
+    up: (db) => {
+      db.exec(V2_FINANCIAL_DOMAIN);
+      // FX rate snapshot columns so USDC payout math is reproducible forever
+      // from the withdrawal row alone — no config drift, no later migration needed.
+      db.exec(`
+        ALTER TABLE withdrawals ADD COLUMN fx_rate NUMERIC NOT NULL DEFAULT 0.01;
+        ALTER TABLE withdrawals ADD COLUMN fx_bps INTEGER NOT NULL DEFAULT 0;
+      `);
+    },
   },
 ];

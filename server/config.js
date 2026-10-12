@@ -111,6 +111,14 @@ const config = {
   },
 
   adminToken: str('ADMIN_TOKEN'),
+
+  // Stellar (USDC payouts) config
+  stellar: {
+    horizonUrl: str('STELLAR_HORIZON_URL', 'https://horizon.stellar.testnet.org'),
+    // Secret seed of the platform's funding account; must hold USDC.
+    // In production set via STELLAR_SEED env var; never commit this to source control.
+    seed: str('STELLAR_SEED'),
+  },
 };
 
 /** The mock checkout / mock KYC / OTP-echo surface must never exist in production. */
