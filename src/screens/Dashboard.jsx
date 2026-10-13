@@ -53,6 +53,11 @@ export default function Dashboard() {
   const supporters = useMemo(() => (data?.recent ?? []).map((r, i) => ({ id: r.id, name: r.name, hue: r.hue })), [data])
   const pageUrl = data ? `${location.origin}/${data.username}` : ''
 
+  const share = async () => {
+    try { await navigator.clipboard.writeText(pageUrl) } catch {}
+    setCopied(true); setTimeout(() => setCopied(false), 1800)
+  }
+
   const menuItems = [
     { icon: <Link2 className="w-5 h-5" strokeWidth={2} />,
       label: 'Copy page link', onClick: share },
@@ -65,11 +70,6 @@ export default function Dashboard() {
 
   if (!data) {
     return <div className="app-canvas grid place-items-center min-h-dvh text-mist text-sm">Loading…</div>
-  }
-
-  const share = async () => {
-    try { await navigator.clipboard.writeText(pageUrl) } catch {}
-    setCopied(true); setTimeout(() => setCopied(false), 1800)
   }
 
   const requestWithdrawal = async () => {
