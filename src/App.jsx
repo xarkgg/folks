@@ -16,5 +16,6 @@ function usePath() {
 export default function App() {
   const path = usePath()
   const username = path.replace(/^\/+/, '').split('/')[0]
-  return username ? <SupportPage username={username} /> : <Dashboard />
+  const Screen = username ? <SupportPage username={username} /> : <Dashboard />
+  return <div key={username || 'dashboard'} className="page-in">{Screen}</div>
 }

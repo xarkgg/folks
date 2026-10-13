@@ -7,9 +7,9 @@
 ────────────────────────────────────────────── */
 @theme {
   /* type */
-  --font-ui: "Oakes Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Gendy", "Oakes Grotesk", ui-sans-serif, sans-serif;
-  --font-logo: "Aminute", "Oakes Grotesk", ui-sans-serif, sans-serif;
+  --font-ui: "NairaFix", "Oakes Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "NairaFix", "Gendy", "Oakes Grotesk", ui-sans-serif, sans-serif;
+  --font-logo: "NairaFix", "Aminute", "Oakes Grotesk", ui-sans-serif, sans-serif;
 
   /* ink — dark base */
   --color-ink: #0b1d20;
@@ -36,6 +36,12 @@
   /* shadows */
   --shadow-sheet: 0 -12px 40px rgba(0, 0, 0, 0.35);
   --shadow-nav: 0 8px 30px rgba(0, 0, 0, 0.45);
+}
+
+@font-face {
+  font-family: "NairaFix";
+  src: local("Roboto"), local("Segoe UI"), local("Helvetica Neue");
+  unicode-range: U+20A6;
 }
 
 /* @font-face — self-hosted kit */
@@ -188,3 +194,50 @@ html, body {
   to   { opacity: 1; transform: none; }
 }
 .menu-in { animation: menu-in .16s ease-out both; }
+
+/* alive micro-interactions */
+.press {
+  transition: transform 120ms cubic-bezier(0.4,0,0.2,1), filter 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.press:active { transform: scale(.95); filter: brightness(.9); }
+
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.row-in { animation: row-in 220ms cubic-bezier(0.16,1,0.3,1) both; }
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+.skeleton-dark {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: .8; }
+}
+.pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+.page-in { animation: page-in 260ms cubic-bezier(0.16,1,0.3,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .row-in, .page-in, .press, .pulse-dot, .skeleton, .skeleton-dark { animation: none !important; transition: none !important; }
+}

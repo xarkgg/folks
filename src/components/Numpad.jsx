@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { evaluateExpression } from '../lib/money.js'
+import { buzz } from '../lib/alive.js'
 import { Delete } from 'lucide-react'
 
 // numpad with operator row — the "143 × 2 = 286" moment from the video.
@@ -63,6 +64,7 @@ const KEYS = [
 
 export default function Numpad({ entry }) {
   const press = (k) => {
+    buzz(6)
     if (k === 'back') return entry.backspace()
     if (k === '=') return entry.equals()
     if (['+', '-', '×', '÷'].includes(k)) return entry.op(k)

@@ -5,6 +5,7 @@ import { formatNaira } from '../lib/money.js'
 import Numpad, { useAmountEntry } from '../components/Numpad.jsx'
 import SwipeConfirm from '../components/SwipeConfirm.jsx'
 import { Check } from 'lucide-react'
+import { buzz } from '../lib/alive.js'
 
 const PRESETS = [500, 1000, 2000, 5000]
 
@@ -31,6 +32,10 @@ export default function SupportPage({ username }) {
   const [done, setDone] = useState(null)       // { amountKobo }
   const [err, setErr] = useState('')
   const entry = useAmountEntry()
+
+  useEffect(() => {
+    if (done) buzz([12, 90, 12])
+  }, [done])
 
   useEffect(() => {
     withMock(

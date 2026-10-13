@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ChevronRight, Check } from 'lucide-react'
+import { buzz } from '../lib/alive.js'
 
 // swipe-right-to-confirm slider — completes at 85% travel, springs back otherwise
 export default function SwipeConfirm({ label = 'Swipe right to confirm', onConfirm, disabled = false }) {
@@ -19,6 +20,7 @@ export default function SwipeConfirm({ label = 'Swipe right to confirm', onConfi
       dragging.current = false
       setDone(true)
       setDx(max())
+      buzz(20)
       onConfirm?.()
     }
   }

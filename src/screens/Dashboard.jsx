@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/api.js'
 import { mockDashboard, withMock } from '../lib/mock.js'
 import { formatNaira } from '../lib/money.js'
+import { useCountUp } from '../lib/alive.js'
 import AvatarStack from '../components/AvatarStack.jsx'
 import BottomNav from '../components/BottomNav.jsx'
 import Sheet from '../components/Sheet.jsx'
@@ -52,6 +53,7 @@ export default function Dashboard() {
 
   const supporters = useMemo(() => (data?.recent ?? []).map((r, i) => ({ id: r.id, name: r.name, hue: r.hue })), [data])
   const pageUrl = data ? `${location.origin}/${data.username}` : ''
+  const balanceKoboAnimated = useCountUp(data?.balanceKobo ?? 0)
 
   const share = async () => {
     try { await navigator.clipboard.writeText(pageUrl) } catch {}
@@ -69,7 +71,25 @@ export default function Dashboard() {
   ]
 
   if (!data) {
-    return <div className="app-canvas grid place-items-center min-h-dvh text-mist text-sm">Loading…</div>
+    return (
+      <div className="app-canvas flex h-dvh flex-col overflow-hidden bg-ink text-sheet">
+        <div className="flex-none px-6 pt-12 pb-5">
+          <div className="skeleton-dark h-11 w-24 rounded-full mb-8" />
+          <div className="skeleton-dark h-14 w-56 rounded mb-6" />
+          <div className="flex gap-3">
+            <div className="skeleton-dark h-11 w-32 rounded-full" />
+            <div className="skeleton-dark h-11 w-32 rounded-full" />
+          </div>
+          <div className="skeleton-dark h-28 w-full rounded-2xl mt-8" />
+        </div>
+        <div className="flex-1 bg-sheet rounded-t-[2rem]">
+          <div className="p-6 space-y-3">
+            <div className="skeleton h-10 w-full rounded-xl" />
+            {[0,1,2,3,4].map(i => <div key={i} className="skeleton h-16 w-full rounded-2xl" />)}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const requestWithdrawal = async () => {
@@ -100,9 +120,9 @@ export default function Dashboard() {
             {data.displayName[0]?.toUpperCase()}
           </div>
           <div className="flex items-center gap-2.5">
-          <button aria-label="Notifications" className="bubble bubble-pill relative w-11 h-11 grid place-items-center text-mist">
+          <button aria-label="Notifications" className="press bubble bubble-pill relative w-11 h-11 grid place-items-center text-mist">
             <Bell className="w-5 h-5" strokeWidth={2} />
-            <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-candy-yellow" />
+            <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-candy-yellow pulse-dot" />
             </button>
             <Menu trigger={(
               <button aria-label="More" className="bubble bubble-pill w-11 h-11 grid place-items-center text-mist">
@@ -114,20 +134,20 @@ export default function Dashboard() {
 
         <p className="mt-8 text-mist text-sm">Total balance</p>
         <h1 className="font-display tnum text-[44px] leading-tight mt-1">
-          {formatNaira(data.balanceKobo)}
+          {formatNaira(balanceKoboAnimated)}
         </h1>
 
         <div className="mt-5 flex gap-3">
           <button
             onClick={() => setSheet('withdraw')}
-            className="h-11 px-5 rounded-full bg-sheet text-ink font-medium flex items-center gap-2"
+            className="press h-11 px-5 rounded-full bg-sheet text-ink font-medium flex items-center gap-2"
           >
             <ArrowUp className="w-4 h-4" strokeWidth={2.2} />
             Withdraw
           </button>
           <button
             onClick={share}
-            className="bubble bubble-pill h-11 px-5 text-sheet font-medium"
+            className="press bubble bubble-pill h-11 px-5 text-sheet font-medium"
           >
             {copied ? 'Link copied ✓' : 'Share page'}
           </button>
@@ -166,7 +186,7 @@ export default function Dashboard() {
           {data.recent.filter((r) =>
             !q || r.name.toLowerCase().includes(q.toLowerCase()) || (r.note ?? '').toLowerCase().includes(q.toLowerCase())
           ).map((r, i) => (
-            <li key={r.id} className="flex items-center gap-4 py-3 px-3 -mx-3 rounded-2xl transition-colors hover:bg-fog">
+            <li key={r.id} className="press row-in flex items-center gap-4 py-3 px-3 -mx-3 rounded-2xl transition-colors hover:bg-fog" style={{ animationDelay: `${i * 55}ms` }}>
               <div className="relative">
                 <div
                   className="w-11 h-11 rounded-full grid place-items-center text-white font-medium"
