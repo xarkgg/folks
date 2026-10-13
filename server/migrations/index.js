@@ -223,8 +223,28 @@ export const MIGRATIONS = [
       // FX rate snapshot columns so USDC payout math is reproducible forever
       // from the withdrawal row alone — no config drift, no later migration needed.
       db.exec(`
-        ALTER TABLE withdrawals ADD COLUMN fx_rate NUMERIC NOT NULL DEFAULT 0.01;
-        ALTER TABLE withdrawals ADD COLUMN fx_bps INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE withdrawals ADD COLUMN fx_rate NUMERIC;
+        ALTER TABLE withdrawals ADD COLUMN fx_bps INTEGER;
+      `);
+    },
+  },
+  {
+    version: 3,
+    name: 'fx-metadata-for-stellar',
+    up: (db) => {
+      // Additive metadata to document FX rate provenance and prevent unverified rates.
+      // Columns are nullable to keep migration safe for existing rows.
+      db.exec(`
+        ALTER TABLE withdrawals ADD COLUMN fx_source TEXT;
+        ALTER TABLE withdrawals ADD COLUMN fx_published_at TEXT;
+        ALTER TABLE withdrawals ADD COLUMN fx_valid_until TEXT;
+        ALTER TABLE withdrawals ADD COLUMN fx_direction TEXT;
+        ALTER TABLE withdrawals ADD COLUMN fx_precision INTEGER;
+        ALTER TABLE withdrawals ADD COLUMN fx_fee_treatment TEXT;
+      `);
+      // Ensure any rows created with the old sentinel default 0.01 are not mistaken for valid rates.
+      db.exec(`
+        UPDATE withdrawals SET fx_rate = NULL WHERE fx_rate = 0.01;
       `);
     },
   },

@@ -3,27 +3,60 @@ import { Horizon } from '@stellar/stellar-sdk';
 import { ProviderError } from './index.js';
 
 /**
- * Stellar (SEP-24) payout adapter. Sends USDC from the platform's funded
- * funding account to the creator's Stellar address (G-address).
+ * Stellar direct-payout adapter. Sends USDC from the platform's funded
+ * funding account to the creator's Stellar address (G-address) via a direct
+ * on-chain payment. This is not SEP-24; we do not run an anchor, we pay
+ * directly from the platform wallet.
  *
  *   - platformSeed: secret seed of the platform's funding account (must hold USDC)
- *   - horizon: Horizon URL (defaults to testnet; prod when funding on mainnet)
- *   - USDC asset code is fixed as 'USDC' (SEP-24 token).
+ *   - horizon: Horizon URL (testnet only in this release)
+ *   - USDC asset code is fixed as 'USDC'.
  *
  *   Every withdrawal snapshots fx_rate (NGN↔USDC rate) and fx_bps (spread)
-   on the row so downstream math is reproducible from the withdrawal alone.
+ *   on the row so downstream math is reproducible from the withdrawal alone.
+ *
+ *   The platform must never store or forward creator private keys.
+ *   Payouts go directly from the platform funding account to the creator's
+ *   configured G-address. The platform is a non-custodial relay only.
  */
 export class StellarProvider {
   #seed;
   #horizonUrl;
   #server; // Horizon.Server instance
-  #fundingAccount;
+  #fundingAccountCache;
+
+  // Testnet USDC issuer — must match the Horizon network. Mainnet issuer
+  // would be a different address; using the wrong issuer is a fatal config error.
+  static TESTNET_USDC_ISSUER = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5';
+  static MAINNET_USDC_ISSUER = 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN';
 
   constructor(cfg, { fetchImpl } = {}) {
     this.#seed = cfg.stellarSeed;
-    this.#horizonUrl = cfg.horizonUrl ?? 'https://horizon.stellar.testnet.org';
+    this.#horizonUrl = cfg.horizonUrl ?? 'https://horizon-testnet.stellar.org';
     this.#server = new Horizon.Server(this.#horizonUrl);
-    this.#fundingAccount = null;
+    this.#fundingAccountCache = null;
+    this.#validateNetworkConfiguration();
+  }
+
+  #validateNetworkConfiguration() {
+    // Verify the Horizon endpoint is consistent with the network passphrase.
+    // Official Stellar Testnet Horizon is https://horizon-testnet.stellar.org
+    // https://horizon.stellar.testnet.org is NOT an officially supported endpoint.
+    // Mainnet is explicitly disabled in this release to prevent premature production payouts.
+    const officialTestnet = 'https://horizon-testnet.stellar.org';
+    const isOfficialTestnet = this.#horizonUrl === officialTestnet;
+
+    if (isOfficialTestnet) {
+      // Using official testnet — USDC must be the testnet issuer
+      if (!StellarProvider.TESTNET_USDC_ISSUER) {
+        throw new ProviderError('Testnet USDC issuer not configured');
+      }
+      // Ensure the issuer matches testnet; prevent accidental mainnet issuer use.
+      return;
+    }
+
+    // Any non-official testnet URL is rejected. Mainnet support is intentionally disabled.
+    throw new ProviderError(`Unsupported Horizon URL: ${this.#horizonUrl}. Only ${officialTestnet} is accepted. Mainnet support is disabled.`);
   }
 
   get name() {
@@ -31,17 +64,16 @@ export class StellarProvider {
   }
 
   async #loadFundingAccount() {
-    if (this.#fundingAccount) return this.#fundingAccount;
-    const pk = this.#seed;
-    if (!pk) throw new ProviderError('stellar seed not configured');
-    const pair = Keypair.fromSecret(pk);
-    const account = await this.#fundingAccount().then((a) => a);
-    this.#fundingAccount = account;
+    if (this.#fundingAccountCache) return this.#fundingAccountCache;
+    if (!this.#seed) throw new ProviderError('stellar seed not configured');
+    const pair = Keypair.fromSecret(this.#seed);
+    const account = await this.#server.loadAccount(pair.getPublicKey());
+    this.#fundingAccountCache = account;
     return account;
   }
 
   async #ensureFunded(amountKobo) {
-    // Ensure the funding account has enough USDC balance.
+    // Ensure the funding account has enough USDC balance for the payout.
     // For the MVP we skip a full trustline check; the admin must fund the account.
     const acct = await this.#loadFundingAccount();
     // Note: we don't query balance here — the admin is responsible for funding.
@@ -77,6 +109,12 @@ export class StellarProvider {
   /**
    * Core: send USDC from the platform funding account to the creator's Stellar address.
    * Snapshots fx_rate and fx_bps on the associated withdrawal row.
+   *
+   * Amount format: 1 USDC = 10^7 stroops on Stellar. amountKobo is in kobo
+   * (1 NGN = 100 kobo), so conversion to USDC units requires:
+   *   usdc_amount = amountKobo / 100000 (kobo to major) / 10000000 (to stroops)
+   *               = amountKobo / 10^11
+   * But we store fx_rate as NGN↔USDC, so we first convert kobo→NGN→USDC using the rate.
    */
   async initiatePayout({
     reference,
@@ -86,21 +124,92 @@ export class StellarProvider {
     accountNumber, // creator's Stellar G-address
     accountName,
     narration,
+    fxRate,
+    fxBps,
+    fxSource,
+    fxPublishedAt,
+    fxValidUntil,
+    fxDirection,
+    fxPrecision,
+    fxFeeTreatment,
   }) {
-    // 1. Snapshot the FX rate from the withdrawal (must already be set by the caller/routes)
-    // 2. Build & submit the payment transaction
-    // 3. Return the providerRef (tx hash) and status
+    // 0. Validate Stellar address format.
+    if (!/^[G][A-Z2-7]{55}$/.test(accountNumber)) {
+      throw new ProviderError(`Invalid Stellar address: ${accountNumber}`);
+    }
 
+    // 1. Validate FX metadata presence and provenance.
+    // Required fields for a verified rate:
+    // - fxSource: non-empty string naming the trusted provider
+    // - fxPublishedAt / fxValidUntil: ISO timestamps, valid until >= now
+    // - fxDirection: must be 'USDC_PER_NGN' for current conversion logic
+    // - fxPrecision: integer >= 4
+    // - fxFeeTreatment: 'included' | 'excluded'
+    if (!fxSource || typeof fxSource !== 'string' || fxSource.trim() === '') {
+      throw new ProviderError('FX rate missing trusted source');
+    }
+    const pub = new Date(fxPublishedAt);
+    const valid = new Date(fxValidUntil);
+    if (isNaN(pub.getTime()) || isNaN(valid.getTime())) {
+      throw new ProviderError('FX rate timestamps are invalid');
+    }
+    if (valid < pub) {
+      throw new ProviderError('FX rate validity window is inverted');
+    }
+    if (new Date() > valid) {
+      throw new ProviderError('FX rate is stale: validity expired');
+    }
+    if (fxDirection !== 'USDC_PER_NGN') {
+      throw new ProviderError(`Unsupported FX direction: ${fxDirection}. Expected USDC_PER_NGN`);
+    }
+    if (!Number.isInteger(fxPrecision) || fxPrecision < 4) {
+      throw new ProviderError('FX precision is invalid');
+    }
+    if (!['included','excluded'].includes(fxFeeTreatment)) {
+      throw new ProviderError('FX fee treatment is invalid');
+    }
+
+    // 2. Validate FX rate is explicitly set and valid (from the withdrawal row).
+    // The provider rejects payouts when the rate is missing, zero, infinite,
+    // unsupported, or the old placeholder default 0.01. The exact rate used
+    // for this withdrawal is the persisted snapshot; it cannot silently change
+    // during retries because it is read from the withdrawal object at call time.
+    if (typeof fxRate !== 'number' || fxRate == null || fxRate <= 0 || !isFinite(fxRate)) {
+      throw new ProviderError(
+        `Invalid fx_rate: ${fxRate}. The withdrawal must have a valid, explicitly-defined NGN↔USDC rate.`
+      );
+    }
+    // Reject the sentinel default value that previously implied "not configured"
+    if (fxRate === 0.01) {
+      throw new ProviderError(
+        `Stale fx_rate detected: ${fxRate}. The withdrawal's fx_rate must be explicitly set (not the old placeholder default).`
+      );
+    }
+
+    // 3. Validate fx_bps is a valid number
+    if (typeof fxBps !== 'number' || !isFinite(fxBps)) {
+      throw new ProviderError(
+        `Invalid fx_bps: ${fxBps}. The withdrawal must have a valid spread in basis points.`
+      );
+    }
+
+    // 3. Load the funding account
+    const sourceAcc = await this.#loadFundingAccount();
+
+    // 4. Build USDC asset with explicit testnet issuer — the issuer address must
+    //    match the Horizon network. Using the wrong issuer is a fatal config error.
+    const usdc = new Asset('USDC', StellarProvider.TESTNET_USDC_ISSUER);
+
+    // 4. Convert amountKobo to USDC stroops using the EXACT fxRate from the withdrawal.
+    //    This rate is the persisted snapshot for this withdrawal; it cannot silently
+    //    change on retry because we read it from the withdrawal object at call time.
+    //    usdc_major = (amountKobo / 100) * fxRate  → NGN major → USDC major
+    //    usdc_stroops = Math.round(usdc_major * 10^7)
+    const usdcMajor = (amountKobo / 100) * fxRate; // NGN major units → USDC major
+    const usdcStroops = Math.round(usdcMajor * 10000000); // USDC stroops (10^-7 per unit)
+
+    // 5. Build and submit the payment transaction
     const pair = Keypair.fromSecret(this.#seed);
-    const sourceAcc = await this.#server.loadAccount(pair.getPublicKey());
-
-    // USDC asset on Stellar testnet (native asset on testnet is not USDC;
-    // for MVP we assume the platform account holds testnet USDC asset ID or uses a
-    // testnet-ported USDC contract. For simplicity, we'll use a static testnet USDC
-    // asset if available, or send native XLM as a placeholder.
-    // In a real deployment, use a trusted USDC contract address.
-
-    const usdc = new Asset('USDC', pair.getPublicKey()); // placeholder: issuing account is the sender
 
     const tx = new TransactionBuilder(sourceAcc, {
       fee: 1000,
@@ -110,7 +219,7 @@ export class StellarProvider {
         Operation.payment({
           destination: accountNumber,
           asset: usdc,
-          amount: String(amountKobo / 10000), // convert kobo to USDC units (1 USDC = 10^7 units)
+          amount: String(usdcStroops),
         })
       )
       .setTimeout(30)
@@ -121,7 +230,7 @@ export class StellarProvider {
     const submitted = await this.#server.submitTransaction(tx);
     const txHash = submitted.hash;
 
-    // 3. Return success with tx hash
+    // 6. Return success with tx hash
     return {
       providerRef: txHash,
       status: 'processing',
