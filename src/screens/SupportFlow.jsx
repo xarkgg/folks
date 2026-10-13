@@ -88,8 +88,8 @@ export default function SupportPage({ username }) {
   const closeAll = () => { setDone(null); setOpen(false); setPhase('amount'); entry.clear() }
 
   return (
-    <div className="app-canvas bg-ink text-sheet">
-      <div className="px-6 pt-16 pb-10 text-center">
+    <div className="app-canvas flex h-dvh flex-col overflow-hidden bg-ink text-sheet">
+      <div className="flex-none overflow-y-auto px-6 pt-16 pb-10 text-center">
         {/* working wordmark — swap when branding lands */}
         <p className="font-logo text-3xl mb-10">folks</p>
 
@@ -125,9 +125,9 @@ export default function SupportPage({ username }) {
 
       {/* ── support sheet ── */}
       {open && !done && (
-        <div className="sheet-enter absolute inset-x-0 bottom-0 z-30 rounded-t-[2rem] bg-sheet shadow-sheet">
+        <div className="sheet-enter z-30 flex min-h-0 flex-1 flex-col rounded-t-[2rem] bg-sheet shadow-sheet">
           <div className="pt-3 pb-1 grid place-items-center"><div className="w-10 h-1.5 rounded-full bg-fog" /></div>
-          <div className="px-6 pb-8 overflow-y-auto max-h-[88dvh]">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8">
             <div className="text-center mt-2">
               <div className="bubble-light bubble-pill inline-flex items-center gap-2 pl-1.5 pr-4 py-1.5">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-candy-teal to-candy-blue grid place-items-center text-xs font-semibold text-white">

@@ -85,9 +85,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="app-canvas bg-ink text-sheet">
+    <div className="app-canvas flex h-dvh flex-col overflow-hidden bg-ink text-sheet">
       {/* ── dark hero ── */}
-      <header className="relative px-6 pt-14 pb-6">
+      <header className="relative flex-none overflow-y-auto px-6 pt-12 pb-5">
         {/* peeking card stack — brand signature from the video */}
         <div className="absolute right-[-46px] top-[168px] flex gap-1.5 rotate-0" aria-hidden>
           {['bg-candy-yellow', 'bg-candy-teal', 'bg-candy-blue'].map((c) => (
@@ -134,7 +134,7 @@ export default function Dashboard() {
         </div>
 
         {/* month card */}
-        <div className="bubble mt-8 mr-14 p-5">
+        <div className="bubble mt-6 mr-14 p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-mist text-sm">This month</p>
@@ -147,7 +147,7 @@ export default function Dashboard() {
       </header>
 
       {/* ── transactions sheet ── */}
-      <main className="sheet-enter absolute inset-x-0 bottom-0 z-20 rounded-t-[2rem] bg-sheet shadow-sheet">
+      <main className="sheet-enter z-20 flex min-h-0 flex-1 flex-col rounded-t-[2rem] bg-sheet shadow-sheet">
         <div className="pt-3 pb-1 grid place-items-center"><div className="w-10 h-1.5 rounded-full bg-fog" /></div>
         <div className="flex items-center justify-between px-6 pt-2 pb-3">
           <h2 className="text-lg font-medium text-ink">Recent support</h2>
@@ -162,7 +162,7 @@ export default function Dashboard() {
               className="bg-transparent flex-1 outline-none text-sm text-ink placeholder:text-stone/70" />
           </div>
         </div>
-        <ul className="px-6 pb-32 space-y-1 overflow-y-auto max-h-[40dvh]">
+        <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto px-6 pb-28">
           {data.recent.filter((r) =>
             !q || r.name.toLowerCase().includes(q.toLowerCase()) || (r.note ?? '').toLowerCase().includes(q.toLowerCase())
           ).map((r, i) => (
