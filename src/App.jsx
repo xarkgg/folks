@@ -7,8 +7,8 @@ function usePath() {
   const [path, setPath] = useState(location.pathname)
   useEffect(() => {
     const onPop = () => setPath(location.pathname)
-    addEventListener('popstate', onPop)
-    return () => removeEventListener('popstate', onPop)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
   }, [])
   return path
 }
