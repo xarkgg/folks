@@ -108,7 +108,10 @@ export default function SupportPage({ username }) {
         {goalPct !== null && (
           <div className="mt-8 max-w-[260px] mx-auto">
             <div className="h-2 rounded-full bg-ink-3 overflow-hidden">
-              <div className="h-full rounded-full bg-candy-teal transition-all" style={{ width: `${goalPct}%` }} />
+              <div
+                className="h-full w-full rounded-full bg-candy-teal origin-left transition-transform duration-500"
+                style={{ transform: `scaleX(${goalPct / 100})` }}
+              />
             </div>
             <p className="tnum text-mist text-xs mt-2">
               ₦{page.receivedNaira.toLocaleString()} of ₦{page.goalNaira.toLocaleString()} this month
@@ -169,7 +172,8 @@ export default function SupportPage({ username }) {
 
             <div className="mt-6"><Numpad entry={entry} /></div>
 
-            {err && <p className="text-center text-danger text-sm mt-4">{err}</p>}
+            {/* reserved so an error never shoves the confirm control down mid-gesture */}
+            <p className="mt-4 min-h-[20px] text-center text-danger text-sm">{err}</p>
 
             <div className="mt-6">
               <SwipeConfirm

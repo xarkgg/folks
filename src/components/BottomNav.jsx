@@ -21,7 +21,7 @@ export default function BottomNav({ active = 'home', onChange }) {
               onClick={() => onChange?.(key)}
               aria-label={label}
               aria-current={isActive ? 'page' : undefined}
-              className={`press grid place-items-center w-12 h-12 rounded-full transition-all duration-200 ${
+              className={`press grid place-items-center w-12 h-12 rounded-full transition-[background-color,color,transform] duration-200 ${
                 isActive ? 'bg-sheet text-ink scale-105' : 'text-mist hover:text-sheet'
               }`}
             >

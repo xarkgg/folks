@@ -36,6 +36,11 @@
   /* shadows */
   --shadow-sheet: 0 -12px 40px rgba(0, 0, 0, 0.35);
   --shadow-nav: 0 8px 30px rgba(0, 0, 0, 0.45);
+
+  /* easing — stronger than the built-ins, which feel weak */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @font-face {
@@ -85,46 +90,42 @@ html, body {
 
 .tnum { font-variant-numeric: tabular-nums; }
 
-/* neumorphic numpad keys (video signature) */
+/* neumorphic numpad keys (video signature).
+   Only `transform` is transitioned — animating the box-shadow repaints the key
+   on every frame. The inset shadow swaps instantly on press, which reads as
+   "the key sank in" without the per-frame paint cost. */
 .key {
   background: #f2f4f4;
   border-radius: 1.25rem;
   box-shadow: 5px 5px 10px #d8dcdc, -5px -5px 10px #ffffff;
-  transition: transform .08s ease, box-shadow .08s ease;
+  transition: transform 110ms var(--ease-out);
   user-select: none;
   touch-action: manipulation;
 }
 .key:active {
   transform: scale(.96);
   box-shadow: inset 3px 3px 6px #d8dcdc, inset -3px -3px 6px #ffffff;
+  transition-duration: 0ms;
 }
 .key-op { background: #eef1f1; color: var(--color-stone); font-weight: 500; }
 
-/* sheet entrance */
+/* sheet entrance — the sheet is already on screen, so it settles into place
+   rather than travelling a long way. Sub-300ms keeps it feeling responsive. */
 @keyframes sheet-up {
-  from { transform: translateY(60%); opacity: .4; }
+  from { transform: translateY(24px); opacity: .6; }
   to   { transform: translateY(0); opacity: 1; }
 }
-.sheet-enter { animation: sheet-up .38s cubic-bezier(.22,1,.36,1) both; }
+.sheet-enter { animation: sheet-up 240ms var(--ease-drawer) both; }
 
 @keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
 .fade-in { animation: fade-in .25s ease both; }
 
 @keyframes pop-in {
-  0% { transform: scale(.6); opacity: 0 }
-  70% { transform: scale(1.08) }
+  0% { transform: scale(.9); opacity: 0 }
+  60% { transform: scale(1.04) }
   100% { transform: scale(1); opacity: 1 }
 }
-.pop-in { animation: pop-in .45s cubic-bezier(.22,1,.36,1) both; }
-
-@keyframes draw-check {
-  to { stroke-dashoffset: 0; }
-}
-.draw-check {
-  stroke-dasharray: 60;
-  stroke-dashoffset: 60;
-  animation: draw-check .5s .15s ease-out forwards;
-}
+.pop-in { animation: pop-in 240ms var(--ease-spring) both; }
 
 /* hide scrollbars in horizontal chip rows */
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -160,21 +161,7 @@ html, body {
           mask-composite: exclude;
   pointer-events: none;
 }
-/* warmer variant — faint amber tint in the fill + highlight */
-.bubble-warm {
-  background: linear-gradient(180deg, rgba(255,238,214,.065), rgba(255,255,255,.025));
-  box-shadow:
-    inset 0 1px 0 rgba(255,240,220,.10),
-    0 10px 28px rgba(0,0,0,.35);
-}
-.bubble-warm::after {
-  background: linear-gradient(180deg,
-    rgba(255,240,220,.20),
-    rgba(255,255,255,.05) 45%,
-    rgba(255,255,255,.015));
-}
 .bubble-pill { --b-r: 999px; }
-.bubble-lg   { --b-r: 28px; }
 
 /* light-surface bubble — the Kimi effect translated to white sheets */
 .bubble-light {
@@ -195,17 +182,17 @@ html, body {
 }
 .menu-in { animation: menu-in .16s ease-out both; }
 
-/* alive micro-interactions */
-.press {
-  transition: transform 120ms cubic-bezier(0.4,0,0.2,1), filter 120ms cubic-bezier(0.4,0,0.2,1);
-}
-.press:active { transform: scale(.95); filter: brightness(.9); }
+/* alive micro-interactions.
+   Scale only: a brightness filter repaints the whole element and washes out the
+   bubble gradient and its hairline border. */
+.press { transition: transform 120ms var(--ease-out); }
+.press:active { transform: scale(.97); }
 
 @keyframes row-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
-.row-in { animation: row-in 220ms cubic-bezier(0.16,1,0.3,1) both; }
+.row-in { animation: row-in 220ms var(--ease-out) both; }
 
 .skeleton {
   position: relative;
@@ -233,11 +220,28 @@ html, body {
 .pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
 
 @keyframes page-in {
-  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
 }
-.page-in { animation: page-in 260ms cubic-bezier(0.16,1,0.3,1) both; }
+.page-in { animation: page-in 220ms var(--ease-out) both; }
 
+/* Reduced motion means fewer and gentler, not zero. Large movement is dropped,
+   but press feedback survives — it is the only confirmation the tap landed. */
 @media (prefers-reduced-motion: reduce) {
-  .row-in, .page-in, .press, .pulse-dot, .skeleton, .skeleton-dark { animation: none !important; transition: none !important; }
+  .row-in,
+  .page-in,
+  .sheet-enter,
+  .pulse-dot,
+  .pop-in {
+    animation: none !important;
+  }
+  .skeleton,
+  .skeleton-dark {
+    animation: none !important;
+    background: none;
+  }
+  .press:active,
+  .key:active {
+    transition-duration: 0ms;
+  }
 }

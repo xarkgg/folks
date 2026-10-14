@@ -167,7 +167,7 @@ export default function Dashboard() {
       </header>
 
       {/* ── transactions sheet ── */}
-      <main className="sheet-enter z-20 flex min-h-0 flex-1 flex-col rounded-t-[2rem] bg-sheet shadow-sheet">
+      <main className="z-20 flex min-h-0 flex-1 flex-col rounded-t-[2rem] bg-sheet shadow-sheet">
         <div className="pt-3 pb-1 grid place-items-center"><div className="w-10 h-1.5 rounded-full bg-fog" /></div>
         <div className="flex items-center justify-between px-6 pt-2 pb-3">
           <h2 className="text-lg font-medium text-ink">Recent support</h2>
@@ -186,7 +186,7 @@ export default function Dashboard() {
           {data.recent.filter((r) =>
             !q || r.name.toLowerCase().includes(q.toLowerCase()) || (r.note ?? '').toLowerCase().includes(q.toLowerCase())
           ).map((r, i) => (
-            <li key={r.id} className="press row-in flex items-center gap-4 py-3 px-3 -mx-3 rounded-2xl transition-colors hover:bg-fog" style={{ animationDelay: `${i * 55}ms` }}>
+            <li key={r.id} className="press row-in flex items-center gap-4 py-3 px-3 -mx-3 rounded-2xl transition-colors hover:bg-fog" style={{ animationDelay: `${Math.min(i, 3) * 50}ms` }}>
               <div className="relative">
                 <div
                   className="w-11 h-11 rounded-full grid place-items-center text-white font-medium"

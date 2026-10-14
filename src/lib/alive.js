@@ -7,31 +7,30 @@ function easeOutExpo(t) {
 export function useCountUp(target = 0, { duration = 1100, delay = 200 } = {}) {
   const [value, setValue] = useState(0)
   const rafRef = useRef(null)
-  const startRef = useRef(null)
 
   useEffect(() => {
-    let started = false
-    const start = () => {
-      started = true
-      startRef.current = performance.now()
-      const step = (now) => {
-        const elapsed = now - startRef.current - delay
-        if (elapsed < 0) {
-          rafRef.current = requestAnimationFrame(step)
-          return
-        }
-        const t = Math.min(1, elapsed / duration)
-        const eased = easeOutExpo(t)
-        setValue(Math.round(target * eased))
-        if (t < 1) {
-          rafRef.current = requestAnimationFrame(step)
-        }
-      }
-      rafRef.current = requestAnimationFrame(step)
+    // A one-second counting number is exactly the kind of motion that triggers
+    // vestibular discomfort, and no CSS media query can reach it. Snap instead.
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      setValue(target)
+      return
     }
-    const id = setTimeout(start, 0)
+
+    const startAt = performance.now()
+    const step = (now) => {
+      const elapsed = now - startAt - delay
+      if (elapsed < 0) {
+        rafRef.current = requestAnimationFrame(step)
+        return
+      }
+      const t = Math.min(1, elapsed / duration)
+      setValue(Math.round(target * easeOutExpo(t)))
+      if (t < 1) rafRef.current = requestAnimationFrame(step)
+    }
+    rafRef.current = requestAnimationFrame(step)
+
     return () => {
-      clearTimeout(id)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
   }, [target, duration, delay])
